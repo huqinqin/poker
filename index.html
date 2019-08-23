@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body{
+            /*perspective:1000px;*/
+        }
+        #wrapper{
+            width: 100%;
+            height: 1200px;
+            position: relative;
+           /* transform-style:preserve-3d;*/
+        }
+        .img{
+            margin: 10px;
+            width: 200px;
+            height: 350px;
+            /*float: left;*/
+            position:absolute;
+            overflow: hidden;
+            transition: all 1s linear;
+        }
+        img{
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transition: all 1s linear;
+            transform-origin: center center ;
+        }
+        img:first-child{
+            z-index: 1000;
+        }
+        img:nth-child(2){
+            transform-origin: center center ;
+        }
+        /*这个是塔罗牌，也是下面的牌*/
+        @keyframes name {
+            0%{transform: scaleX(0) rotateY(-180deg);z-index:0;}
+            50%{ transform: scaleX(0) rotateY(90deg);z-index:1;}
+            75%{ transform: scaleX(1) rotateY(0deg);z-index:1;}
+        }
+        /*牌的封面*/
+        @keyframes name1 {
+            0%{ z-index: 1;transform: rotateY(0deg)}
+            50%{ z-index: 0;transform: rotateY(90deg)}
+            100%{z-index: 0;transform: rotateY(90deg)}
+        }
+        button{
+            width: 180px;
+            font-weight: bold;
+            font-size: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body onload="start()">
+    <h1 style="text-align: center">占卜游戏</h1>
+    <div id="wrapper">
+    </div>
+    <div style="text-align: center">
+        <button onclick="shifts()">重新洗牌</button>
+    </div>
+</body>
+<script>
+    Array.prototype.shuffle = function() {
+        var input = this;
+        for (var i = input.length-1; i >=0; i--) {
+
+            var randomIndex = Math.floor(Math.random()* i);
+            var itemAtIndex = input[randomIndex];
+
+            input[randomIndex] = input[i];
+            input[i] = itemAtIndex;
+        }
+        return input;
+    };
+    let div = [];
+    for(let i=0;i<24;i++){
+        div[i] = document.createElement('div');
+        let img = document.createElement('img');
+        img.src = "./imgs/background.jpg";
+        div[i].className = 'img';
+        div[i].appendChild(img);
+        document.getElementById('wrapper').appendChild(div[i]);
+    }
+    var img = document.getElementsByClassName('img');
+    /*最开始加载*/
+    function start() {
+        /*把每个封面下面加上底牌*/
+        var j = 0,i=0;
+        for(var t=0;t<img.length;t++){
+            i = t % 8;
+            if(i==0){
+                j = t / 8;
+            }
+            img[t].style.left = 200 * i + 10 * i + 'px';
+            img[t].style.top = 350 * j + 10 * j + 'px';
+            var imgChild = document.createElement('img');
+            imgChild.src = "./imgs/"+(t+1)+".png";
+            img[t].appendChild(imgChild);
+            (function (i) {
+                img[i].onclick = function () {
+                    //img[i].children[0].style.transform = 'rotateY(180deg)';
+                    img[i].children[0].style.zIndex = '-1'
+                    //img[i].children[1].style.transform = 'rotateY(180deg)';
+                    img[i].children[0].style.animation = 'name1 2s linear';
+                    img[i].children[1].style.animation = 'name 2s linear';
+
+                }
+            })(t)
+        };
+    }
+    function shifts() {
+        let t=0;
+        let box = shiftObj(img.length);
+        let shiftbox = box.shuffle();
+        for(let i=0;i<shiftbox.length;i++){
+            shiftbox[i].arr.shuffle();
+        }
+        for(let i=0;i<shiftbox.length;i++){
+            for(let j=0;j<shiftbox[i].arr.length;j++){
+                t++;
+                console.log(t);
+                img[t-1].style.left = 200*shiftbox[i].arr[j] + 10 * shiftbox[i].arr[j] + 'px';
+                img[t-1].style.top = 350 * shiftbox[i].m + 10 * shiftbox[i].m + 'px';
+            }
+        }
+    }
+    function shiftObj(n) {
+        let arrshifs = [];
+        for(let i=0;i<n/8;i++){
+            let obj={
+                m:i,
+                arr:[0,1,2,3,4,5,6,7]
+            }
+            arrshifs.push(obj);
+        }
+        return arrshifs;
+    }
+</script>
+</html>
